@@ -74,23 +74,19 @@ Plus two details that matter more than they sound:
 
 ## 🚀 Getting started
 
-### Build from source
-
-Requires Xcode 15+ on macOS 14+.
+Requires Xcode 15+ on macOS 14+. No Apple Developer account needed.
 
 ```bash
 git clone https://github.com/techieasif/macanikal.git
-cd macanikal
-xcodebuild -project macanikal.xcodeproj -scheme macanikal -configuration Release -derivedDataPath build build
-open build/Build/Products/Release/Macanikal.app
+cd macanikal && ./build.sh
 ```
 
-> **Signing:** the project is set up with the author's development team. To build your own copy, change `DEVELOPMENT_TEAM` in `project.yml` (then regenerate with [`xcodegen`](https://github.com/yonaskolb/XcodeGen)) or pick your team in Xcode → Signing & Capabilities.
+The script builds, signs (ad-hoc), and launches the app. Then:
 
-### First launch
-
-1. macOS will ask for **Input Monitoring** permission (System Settings → Privacy & Security → Input Monitoring). The app needs it to know *when* you press a key — it's a listen-only tap and nothing is recorded.
+1. Grant **Input Monitoring** when macOS asks — it's how the app knows *when* you press a key. Listen-only; nothing is recorded.
 2. Click the ⌨️ icon in the menu bar, pick a switch, type something glorious.
+
+> Hacking on the code? Open `macanikal.xcodeproj` in Xcode, pick your team under Signing & Capabilities, and hit ⌘R.
 
 ## ❓ FAQ
 
