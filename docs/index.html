@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Macanikal — Real mechanical keyboard sounds for your Mac</title>
+<meta name="description" content="A tiny, obsessively low-latency menu bar app that plays real mechanical switch recordings as you type. Try all 13 switches right here in your browser."/>
+<style>
+  :root {
+    --bg: #0e0d0c;
+    --bg2: #171512;
+    --card: #1d1a17;
+    --cap: #2e2b28;
+    --cap-top: #25221f;
+    --text: #f3ede4;
+    --muted: #a89f92;
+    --accent: #f5a623;
+    --accent-dark: #d4881a;
+    --clicky: #6aa9ff;
+    --tactile: #f5a623;
+    --linear: #ff7a9c;
+    --thocky: #b78aff;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+
+  /* hero */
+  header { padding: 72px 0 40px; text-align: center; }
+  .logo-caps { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
+  .logo-caps span {
+    display: inline-block; width: 52px; height: 52px; line-height: 48px;
+    background: linear-gradient(180deg, var(--cap), #1b1917);
+    border-radius: 10px; font-weight: 800; font-size: 26px;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    box-shadow: 0 5px 0 #000, inset 0 1px 0 rgba(255,255,255,0.06);
+  }
+  .logo-caps span.hl {
+    background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+    color: #1b1917;
+    box-shadow: 0 5px 0 #7a4d0d, inset 0 1px 0 rgba(255,255,255,0.25);
+  }
+  h1 { font-size: clamp(28px, 5vw, 44px); margin: 28px 0 10px; font-weight: 800; letter-spacing: -0.02em; }
+  h1 em { font-style: normal; color: var(--accent); }
+  .tagline { color: var(--muted); font-size: 18px; max-width: 560px; margin: 0 auto 28px; }
+  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .btn {
+    display: inline-block; padding: 12px 22px; border-radius: 12px;
+    text-decoration: none; font-weight: 700; font-size: 15px; transition: transform .1s ease;
+  }
+  .btn:active { transform: translateY(2px); }
+  .btn-primary { background: linear-gradient(180deg, var(--accent), var(--accent-dark)); color: #1b1917; box-shadow: 0 4px 0 #7a4d0d; }
+  .btn-ghost { background: var(--card); color: var(--text); box-shadow: 0 4px 0 #000; }
+
+  /* demo */
+  .demo { background: var(--bg2); border-radius: 24px; padding: 28px; margin: 24px 0 64px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
+  .demo-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .demo-head h2 { font-size: 20px; }
+  .hint { color: var(--muted); font-size: 13px; }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  .pill {
+    border: none; cursor: pointer; padding: 7px 14px; border-radius: 999px;
+    background: var(--card); color: var(--muted); font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 7px; transition: all .12s ease;
+  }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .pill:hover { color: var(--text); }
+  .pill.active { background: var(--text); color: var(--bg); }
+  .vol { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
+  input[type=range] { accent-color: var(--accent); width: 130px; }
+
+  /* keyboard */
+  .kb-outer { background: #0a0908; border-radius: 18px; padding: 16px; outline: none; cursor: pointer; border: 2px solid transparent; transition: border-color .15s ease; }
+  .kb-outer:focus { border-color: var(--accent); cursor: default; }
+  .kb-outer:not(:focus):hover { border-color: #3a352f; }
+  .kb { display: flex; flex-direction: column; gap: 6px; user-select: none; }
+  .kb-row { display: flex; gap: 6px; }
+  .key {
+    height: 46px; border-radius: 8px;
+    background: linear-gradient(180deg, var(--cap), #1b1917);
+    box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255,255,255,0.05);
+    display: flex; align-items: center; justify-content: center;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 12px; font-weight: 600; color: #cfc7ba;
+    flex-grow: 0; flex-shrink: 0;
+    transition: transform .04s ease, box-shadow .04s ease, background .04s;
+  }
+  .key.pressed {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,0.05);
+    background: linear-gradient(180deg, var(--accent), var(--accent-dark));
+    color: #1b1917;
+  }
+  .kb-msg { text-align: center; color: var(--muted); font-size: 13px; margin-top: 14px; }
+  .kb-msg b { color: var(--accent); }
+
+  /* features */
+  section { padding: 24px 0 64px; }
+  h2.sec { font-size: clamp(24px, 4vw, 32px); font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
+  .sec-sub { color: var(--muted); margin-bottom: 32px; max-width: 640px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+  .card { background: var(--card); border-radius: 16px; padding: 22px; }
+  .card .emoji { font-size: 26px; }
+  .card h3 { font-size: 16px; margin: 10px 0 6px; }
+  .card p { color: var(--muted); font-size: 14px; }
+
+  /* pipeline */
+  .pipe { background: var(--card); border-radius: 16px; padding: 26px; overflow-x: auto; }
+  .pipe pre {
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    font-size: 13px; line-height: 1.7; color: var(--muted); white-space: pre;
+  }
+  .pipe pre b { color: var(--accent); font-weight: 600; }
+
+  footer { border-top: 1px solid #2a2622; padding: 36px 0 60px; color: var(--muted); font-size: 14px; text-align: center; }
+  footer a { color: var(--text); }
+  @media (max-width: 720px) {
+    .key { height: 34px; font-size: 9px; border-radius: 6px; }
+    .kb, .kb-row { gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="wrap">
+  <div class="logo-caps" aria-label="Macanikal">
+    <span>M</span><span>A</span><span>C</span><span class="hl">A</span><span>N</span><span>I</span><span>K</span><span>A</span><span>L</span>
+  </div>
+  <h1>Your keyboard, but it goes <em>thock</em>.</h1>
+  <p class="tagline">A tiny menu bar app for macOS that plays real mechanical switch recordings as you type — with obsessive, single-digit-millisecond latency.</p>
+  <div class="cta">
+    <a class="btn btn-primary" href="https://github.com/techieasif/macanikal#-getting-started">Get it for Mac</a>
+    <a class="btn btn-ghost" href="https://github.com/techieasif/macanikal">View on GitHub</a>
+  </div>
+</header>
+
+<div class="wrap">
+  <div class="demo">
+    <div class="demo-head">
+      <h2>🔊 Try the switches</h2>
+      <div class="vol">
+        <span>🔉</span>
+        <input id="vol" type="range" min="0" max="100" value="70" aria-label="Volume"/>
+      </div>
+    </div>
+    <div class="pills" id="pills"></div>
+    <div class="kb-outer" id="kbOuter" tabindex="0" aria-label="Interactive keyboard demo">
+      <div class="kb" id="kb"></div>
+    </div>
+    <div class="kb-msg" id="kbMsg"><b>Click the keyboard</b>, then type on your real keys to hear it. Or click the keycaps.</div>
+  </div>
+</div>
+
+<section class="wrap" id="features">
+  <h2 class="sec">Every detail tuned for feel</h2>
+  <p class="sec-sub">Keyboard sound apps live or die by one thing: does the sound land <i>with</i> the keystroke, or just after it? Macanikal is built around that question.</p>
+  <div class="grid">
+    <div class="card"><div class="emoji">🎧</div><h3>13 real switch packs</h3><p>Recorded from actual boards — Holy Panda, Topre, Buckling Spring, MX classics and more. No synthesis, no imitation.</p></div>
+    <div class="card"><div class="emoji">⚡</div><h3>Single-digit-ms latency</h3><p>A listen-only event tap feeds an always-running audio voice pool with a 128-frame hardware buffer (~2.7 ms). Sound starts on the next render cycle.</p></div>
+    <div class="card"><div class="emoji">🎹</div><h3>Row-accurate samples</h3><p>Each keyboard row has its own recording. Space thumps, enter clunks, backspace snaps — like a real board.</p></div>
+    <div class="card"><div class="emoji">🔼</div><h3>Press and release</h3><p>Real switches make sound both ways. So does Macanikal — with a toggle if you prefer press-only.</p></div>
+    <div class="card"><div class="emoji">🎲</div><h3>Humanized playback</h3><p>Subtle random pitch, stereo position, and level on every keystroke, so fast typing never sounds like a machine gun.</p></div>
+    <div class="card"><div class="emoji">🔒</div><h3>Private by design</h3><p>Listen-only tap, zero logging, zero network. Key codes become sounds and are immediately forgotten.</p></div>
+  </div>
+</section>
+
+<section class="wrap" id="how">
+  <h2 class="sec">The keystroke-to-sound path</h2>
+  <p class="sec-sub">Everything that could add milliseconds has been removed — including the 5–20 ms of silent lead-in hiding at the start of most recorded samples, which reads as input lag.</p>
+  <div class="pipe">
+<pre>
+keystroke
+   │  <b>listen-only CGEventTap</b> · dedicated userInteractive thread
+   ▼
+key code → row / space / enter / backspace mapping
+   │
+   ▼
+pre-decoded, silence-trimmed PCM buffer
+   │
+   ▼
+<b>always-running AVAudioPlayerNode pool (×14)</b>
+   │  scheduleBuffer(.interrupts) — no stop/start, no decode
+   ▼
+hardware IO buffer forced to <b>128 frames (~2.7 ms @ 48 kHz)</b>
+   │
+   ▼
+🔊 thock
+</pre>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><a href="https://github.com/techieasif/macanikal">Macanikal</a> is open source under the MIT license.
+    Switch recordings from <a href="https://github.com/tplai/kbsim">kbsim</a> by Thomas Lai (MIT).
+    Inspired by <a href="https://tryklack.com">Klack</a>.</p>
+  </div>
+</footer>
+
+<script>
+const PACKS = [
+  { id: "mxbrown",   name: "MX Brown",        style: "tactile" },
+  { id: "mxblue",    name: "MX Blue",         style: "clicky"  },
+  { id: "mxblack",   name: "MX Black",        style: "linear"  },
+  { id: "holypanda", name: "Holy Panda",      style: "tactile" },
+  { id: "cream",     name: "NK Cream",        style: "linear"  },
+  { id: "topre",     name: "Topre",           style: "thocky"  },
+  { id: "alpaca",    name: "Alpaca",          style: "linear"  },
+  { id: "blackink",  name: "Black Ink",       style: "linear"  },
+  { id: "redink",    name: "Red Ink",         style: "linear"  },
+  { id: "turquoise", name: "Tealios",         style: "linear"  },
+  { id: "boxnavy",   name: "Box Navy",        style: "clicky"  },
+  { id: "buckling",  name: "Buckling Spring", style: "clicky"  },
+  { id: "bluealps",  name: "Blue Alps",       style: "clicky"  },
+];
+const STYLE_COLORS = { clicky: "var(--clicky)", tactile: "var(--tactile)", linear: "var(--linear)", thocky: "var(--thocky)" };
+
+// 60% ANSI layout: [label, event.code, width-units, sample]
+// sample: 0-4 = GENERIC_R{n}, "SPACE" | "ENTER" | "BACKSPACE"
+const LAYOUT = [
+  [["`","Backquote",1,1],["1","Digit1",1,1],["2","Digit2",1,1],["3","Digit3",1,1],["4","Digit4",1,1],["5","Digit5",1,1],["6","Digit6",1,1],["7","Digit7",1,1],["8","Digit8",1,1],["9","Digit9",1,1],["0","Digit0",1,1],["-","Minus",1,1],["=","Equal",1,1],["⌫","Backspace",2,"BACKSPACE"]],
+  [["⇥","Tab",1.5,2],["Q","KeyQ",1,2],["W","KeyW",1,2],["E","KeyE",1,2],["R","KeyR",1,2],["T","KeyT",1,2],["Y","KeyY",1,2],["U","KeyU",1,2],["I","KeyI",1,2],["O","KeyO",1,2],["P","KeyP",1,2],["[","BracketLeft",1,2],["]","BracketRight",1,2],["\\","Backslash",1.5,2]],
+  [["⇪","CapsLock",1.75,3],["A","KeyA",1,3],["S","KeyS",1,3],["D","KeyD",1,3],["F","KeyF",1,3],["G","KeyG",1,3],["H","KeyH",1,3],["J","KeyJ",1,3],["K","KeyK",1,3],["L","KeyL",1,3],[";","Semicolon",1,3],["'","Quote",1,3],["⏎","Enter",2.25,"ENTER"]],
+  [["⇧","ShiftLeft",2.25,4],["Z","KeyZ",1,4],["X","KeyX",1,4],["C","KeyC",1,4],["V","KeyV",1,4],["B","KeyB",1,4],["N","KeyN",1,4],["M","KeyM",1,4],[",","Comma",1,4],[".","Period",1,4],["/","Slash",1,4],["⇧","ShiftRight",2.75,4]],
+  [["ctrl","ControlLeft",1.25,4],["opt","AltLeft",1.25,4],["⌘","MetaLeft",1.25,4],["","Space",6.25,"SPACE"],["⌘","MetaRight",1.25,4],["opt","AltRight",1.25,4],["fn","Fn",1.25,4],["ctrl","ControlRight",1.25,4]],
+];
+
+let ctx = null, master = null;
+const cache = {};   // packId -> { press: {key: AudioBuffer}, release: {...} }
+let current = localStorage.getItem("pack") || "mxbrown";
+if (!PACKS.some(p => p.id === current)) current = "mxbrown";
+const held = new Set();
+
+function audioCtx() {
+  if (!ctx) {
+    ctx = new (window.AudioContext || window.webkitAudioContext)();
+    master = ctx.createGain();
+    master.gain.value = document.getElementById("vol").value / 100;
+    master.connect(ctx.destination);
+  }
+  if (ctx.state === "suspended") ctx.resume();
+  return ctx;
+}
+
+async function loadPack(id) {
+  if (cache[id]) return cache[id];
+  const c = audioCtx();
+  const pack = { press: {}, release: {} };
+  const names = { press: ["GENERIC_R0","GENERIC_R1","GENERIC_R2","GENERIC_R3","GENERIC_R4","SPACE","ENTER","BACKSPACE"],
+                  release: ["GENERIC","SPACE","ENTER","BACKSPACE"] };
+  await Promise.all(Object.entries(names).flatMap(([sub, files]) =>
+    files.map(async f => {
+      try {
+        const res = await fetch(`audio/${id}/${sub}/${f}.mp3`);
+        pack[sub][f] = await c.decodeAudioData(await res.arrayBuffer());
+      } catch (e) { /* missing file is fine */ }
+    })
+  ));
+  cache[id] = pack;
+  return pack;
+}
+
+function pick(pack, sample, isDown) {
+  const bank = isDown ? pack.press : pack.release;
+  if (typeof sample === "number") {
+    return isDown ? (bank[`GENERIC_R${sample}`] || bank.GENERIC_R3) : bank.GENERIC;
+  }
+  return bank[sample] || (isDown ? bank.GENERIC_R3 : bank.GENERIC);
+}
+
+async function play(sample, isDown) {
+  const c = audioCtx();
+  const pack = await loadPack(current);
+  const buf = pick(pack, sample, isDown);
+  if (!buf) return;
+  const src = c.createBufferSource();
+  src.buffer = buf;
+  src.playbackRate.value = 0.97 + Math.random() * 0.06;  // humanize
+  const pan = c.createStereoPanner();
+  pan.pan.value = (Math.random() - 0.5) * 0.3;
+  const g = c.createGain();
+  g.gain.value = 0.88 + Math.random() * 0.12;
+  src.connect(pan).connect(g).connect(master);
+  src.start();
+}
+
+// build keyboard
+const kb = document.getElementById("kb");
+const keyEls = {};
+const keySample = {};
+const UNIT = 100 / 15; // percent per unit
+for (const row of LAYOUT) {
+  const rowEl = document.createElement("div");
+  rowEl.className = "kb-row";
+  for (const [label, code, w, sample] of row) {
+    const el = document.createElement("div");
+    el.className = "key";
+    el.textContent = label;
+    el.style.width = `calc(${(w * UNIT).toFixed(3)}% - 6px)`;
+    el.style.flexBasis = el.style.width;
+    keyEls[code] = el;
+    keySample[code] = sample;
+    el.addEventListener("pointerdown", e => { e.preventDefault(); press(code); });
+    el.addEventListener("pointerup", () => release(code));
+    el.addEventListener("pointerleave", () => held.has(code) && release(code));
+    rowEl.appendChild(el);
+  }
+  kb.appendChild(rowEl);
+}
+
+function press(code) {
+  if (held.has(code)) return;
+  held.add(code);
+  keyEls[code]?.classList.add("pressed");
+  play(keySample[code] ?? 3, true);
+}
+function release(code) {
+  if (!held.delete(code)) return;
+  keyEls[code]?.classList.remove("pressed");
+  play(keySample[code] ?? 3, false);
+}
+
+// physical typing
+const outer = document.getElementById("kbOuter");
+const msg = document.getElementById("kbMsg");
+outer.addEventListener("keydown", e => {
+  if (e.metaKey && !["MetaLeft","MetaRight"].includes(e.code)) return; // don't eat shortcuts
+  e.preventDefault();
+  if (e.repeat) return;
+  press(e.code in keySample ? e.code : "KeyG");
+});
+outer.addEventListener("keyup", e => {
+  e.preventDefault();
+  release(e.code in keySample ? e.code : "KeyG");
+});
+outer.addEventListener("focus", () => { msg.innerHTML = "Listening — <b>type away!</b> The app itself is faster: no browser in the way."; });
+outer.addEventListener("blur", () => {
+  for (const code of [...held]) release(code);
+  msg.innerHTML = "<b>Click the keyboard</b>, then type on your real keys to hear it. Or click the keycaps.";
+});
+
+// pack pills
+const pills = document.getElementById("pills");
+for (const p of PACKS) {
+  const b = document.createElement("button");
+  b.className = "pill" + (p.id === current ? " active" : "");
+  b.innerHTML = `<span class="dot" style="background:${STYLE_COLORS[p.style]}"></span>${p.name}`;
+  b.addEventListener("click", async () => {
+    current = p.id;
+    localStorage.setItem("pack", p.id);
+    document.querySelectorAll(".pill").forEach(x => x.classList.remove("active"));
+    b.classList.add("active");
+    await loadPack(p.id);
+    play(3, true);
+    setTimeout(() => play(3, false), 90);
+  });
+  pills.appendChild(b);
+}
+
+document.getElementById("vol").addEventListener("input", e => {
+  if (master) master.gain.value = e.target.value / 100;
+});
+
+// warm the default pack on first interaction
+window.addEventListener("pointerdown", () => loadPack(current), { once: true });
+</script>
+</body>
+</html>

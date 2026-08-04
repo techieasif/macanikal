@@ -1,0 +1,32 @@
+name: macanikal
+options:
+  deploymentTarget:
+    macOS: "14.0"
+  createIntermediateGroups: true
+targets:
+  macanikal:
+    type: application
+    platform: macOS
+    sources:
+      - path: macanikal
+        excludes:
+          - "Resources/Audio/**"
+      - path: macanikal/Resources/Audio
+        type: folder
+        buildPhase: resources
+    settings:
+      base:
+        PRODUCT_NAME: Macanikal
+        PRODUCT_BUNDLE_IDENTIFIER: com.macanikal.app
+        DEVELOPMENT_TEAM: S9B6RY8H74
+        CODE_SIGN_STYLE: Automatic
+        CODE_SIGN_IDENTITY: "Apple Development"
+        MARKETING_VERSION: 1.0.0
+        CURRENT_PROJECT_VERSION: 1
+        SWIFT_VERSION: "5.0"
+        ENABLE_HARDENED_RUNTIME: YES
+        GENERATE_INFOPLIST_FILE: YES
+        INFOPLIST_KEY_LSUIElement: YES
+        INFOPLIST_KEY_NSHumanReadableCopyright: ""
+        INFOPLIST_KEY_CFBundleDisplayName: Macanikal
+        COMBINE_HIDPI_IMAGES: YES
