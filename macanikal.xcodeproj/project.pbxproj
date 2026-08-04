@@ -7,22 +7,41 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A165352FCBCA3AB3FF5D7E9 /* KeyMappingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3A7A2C974DDB85BA1F81846B /* KeyMappingTests.swift */; };
+		175F81232CD17D325DACDC0E /* SoundPackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55EC1C3392775200B343A63A /* SoundPackTests.swift */; };
 		1ED48DB4DEE45FF5CA98C17B /* ControlPanelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3D0C6D80D3DF26784EE9690 /* ControlPanelView.swift */; };
 		4AF79EDBFC51E06BE7E315B2 /* AppController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9463BAEAA7C30A381C855A9A /* AppController.swift */; };
+		51C7BCE89D13DD1543E6CC0A /* SoundEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D1DD994E91A23742278A8B49 /* SoundEngineTests.swift */; };
 		5B685758055443798D618019 /* SoundEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA07539E9C5627F6440DD57F /* SoundEngine.swift */; };
 		AE49F3018F5F380C08AB15E3 /* KeyEventTap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1C9EF0AB520E337FBE0655F4 /* KeyEventTap.swift */; };
+		D846653CAC2DF1BC24E9E9BF /* AppControllerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DF0A77A218FAFB8990080E18 /* AppControllerTests.swift */; };
 		F40BEED3CFE7326590E047B4 /* Audio in Resources */ = {isa = PBXBuildFile; fileRef = 99C28B0D99923A0B10A44384 /* Audio */; };
 		F8A9B0ADA5BCEF4A9C55C941 /* MacanikalApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38944F7E69997C79AE8C989A /* MacanikalApp.swift */; };
 /* End PBXBuildFile section */
 
+/* Begin PBXContainerItemProxy section */
+		7D7DC86301EB3FA3272A24BF /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 9079C046DF718B822FF95026 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2E2512B0A9FD37E52601CF8D;
+			remoteInfo = macanikal;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		1C9EF0AB520E337FBE0655F4 /* KeyEventTap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyEventTap.swift; sourceTree = "<group>"; };
 		38944F7E69997C79AE8C989A /* MacanikalApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MacanikalApp.swift; sourceTree = "<group>"; };
+		3A7A2C974DDB85BA1F81846B /* KeyMappingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyMappingTests.swift; sourceTree = "<group>"; };
+		55EC1C3392775200B343A63A /* SoundPackTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundPackTests.swift; sourceTree = "<group>"; };
 		8388937E2AB83C565C55518E /* macanikal.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = macanikal.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		9463BAEAA7C30A381C855A9A /* AppController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppController.swift; sourceTree = "<group>"; };
 		99C28B0D99923A0B10A44384 /* Audio */ = {isa = PBXFileReference; lastKnownFileType = folder; name = Audio; path = macanikal/Resources/Audio; sourceTree = SOURCE_ROOT; };
+		AD1BC604C9D5ACC4F00D0464 /* macanikalTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = macanikalTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		B3D0C6D80D3DF26784EE9690 /* ControlPanelView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlPanelView.swift; sourceTree = "<group>"; };
 		BA07539E9C5627F6440DD57F /* SoundEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEngine.swift; sourceTree = "<group>"; };
+		D1DD994E91A23742278A8B49 /* SoundEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoundEngineTests.swift; sourceTree = "<group>"; };
+		DF0A77A218FAFB8990080E18 /* AppControllerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppControllerTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -51,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				8388937E2AB83C565C55518E /* macanikal.app */,
+				AD1BC604C9D5ACC4F00D0464 /* macanikalTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -59,8 +79,20 @@
 			isa = PBXGroup;
 			children = (
 				6B8BB8A813F8A3E94E6CADF9 /* macanikal */,
+				E1A36C9FCE8CF68201984AA8 /* macanikalTests */,
 				8ED666B7C017A3CB9B8066AF /* Products */,
 			);
+			sourceTree = "<group>";
+		};
+		E1A36C9FCE8CF68201984AA8 /* macanikalTests */ = {
+			isa = PBXGroup;
+			children = (
+				DF0A77A218FAFB8990080E18 /* AppControllerTests.swift */,
+				3A7A2C974DDB85BA1F81846B /* KeyMappingTests.swift */,
+				D1DD994E91A23742278A8B49 /* SoundEngineTests.swift */,
+				55EC1C3392775200B343A63A /* SoundPackTests.swift */,
+			);
+			path = macanikalTests;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -84,6 +116,24 @@
 			productReference = 8388937E2AB83C565C55518E /* macanikal.app */;
 			productType = "com.apple.product-type.application";
 		};
+		B5C93FB821F2447335E19BDE /* macanikalTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = F6000A816558275363295E8A /* Build configuration list for PBXNativeTarget "macanikalTests" */;
+			buildPhases = (
+				EC53B0A1C6A866E74A4E158C /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E6202EFC95F061D843FA8DBA /* PBXTargetDependency */,
+			);
+			name = macanikalTests;
+			packageProductDependencies = (
+			);
+			productName = macanikalTests;
+			productReference = AD1BC604C9D5ACC4F00D0464 /* macanikalTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -94,6 +144,10 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					2E2512B0A9FD37E52601CF8D = {
+						DevelopmentTeam = S9B6RY8H74;
+						ProvisioningStyle = Automatic;
+					};
+					B5C93FB821F2447335E19BDE = {
 						DevelopmentTeam = S9B6RY8H74;
 						ProvisioningStyle = Automatic;
 					};
@@ -114,6 +168,7 @@
 			projectRoot = "";
 			targets = (
 				2E2512B0A9FD37E52601CF8D /* macanikal */,
+				B5C93FB821F2447335E19BDE /* macanikalTests */,
 			);
 		};
 /* End PBXProject section */
@@ -142,7 +197,26 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		EC53B0A1C6A866E74A4E158C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D846653CAC2DF1BC24E9E9BF /* AppControllerTests.swift in Sources */,
+				0A165352FCBCA3AB3FF5D7E9 /* KeyMappingTests.swift in Sources */,
+				51C7BCE89D13DD1543E6CC0A /* SoundEngineTests.swift in Sources */,
+				175F81232CD17D325DACDC0E /* SoundPackTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E6202EFC95F061D843FA8DBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2E2512B0A9FD37E52601CF8D /* macanikal */;
+			targetProxy = 7D7DC86301EB3FA3272A24BF /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		121D574449AF9C197740A7EF /* Release */ = {
@@ -200,6 +274,26 @@
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;
+		};
+		19FC66DD23941BE0D22F8A3B /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = S9B6RY8H74;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.macanikal.app.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Macanikal.app/Contents/MacOS/Macanikal";
+			};
+			name = Debug;
 		};
 		2C98884A4BE9A71731304EE5 /* Release */ = {
 			isa = XCBuildConfiguration;
@@ -316,6 +410,26 @@
 			};
 			name = Debug;
 		};
+		CA89FC82DFF4D4C83988DD22 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				DEVELOPMENT_TEAM = S9B6RY8H74;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = com.macanikal.app.tests;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Macanikal.app/Contents/MacOS/Macanikal";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -333,6 +447,15 @@
 			buildConfigurations = (
 				6179D9F02FB73AC2426CBE6C /* Debug */,
 				121D574449AF9C197740A7EF /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		F6000A816558275363295E8A /* Build configuration list for PBXNativeTarget "macanikalTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				19FC66DD23941BE0D22F8A3B /* Debug */,
+				CA89FC82DFF4D4C83988DD22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;

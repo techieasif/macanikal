@@ -142,7 +142,7 @@ final class AppController: ObservableObject {
         return map
     }()
 
-    private func role(for code: Int64) -> KeyRole {
+    func role(for code: Int64) -> KeyRole {
         switch code {
         case 49: return .space
         case 36, 76: return .enter

@@ -24,7 +24,7 @@ struct SoundPack: Identifiable, Equatable {
 
 /// Which sample a key maps to, mirroring the kbsim recording layout:
 /// five row-specific generic samples plus dedicated space/enter/backspace.
-enum KeyRole {
+enum KeyRole: Equatable {
     case row(Int) // 0 = esc/function row ... 4 = bottom row
     case space, enter, backspace
 }
@@ -124,13 +124,15 @@ final class SoundEngine {
         packLock.unlock()
         guard let pack else { return }
 
+        // Not every pack has dedicated special-key recordings (MX Blue has
+        // none), so every branch falls back to a generic row sample.
         let buffer: AVAudioPCMBuffer?
         if isDown {
             switch role {
             case .row(let r): buffer = pack.pressRows[max(0, min(4, r))] ?? pack.pressRows.compactMap { $0 }.randomElement()
-            case .space: buffer = pack.pressSpace
-            case .enter: buffer = pack.pressEnter
-            case .backspace: buffer = pack.pressBackspace
+            case .space: buffer = pack.pressSpace ?? pack.pressRows[4] ?? pack.pressRows.compactMap { $0 }.randomElement()
+            case .enter: buffer = pack.pressEnter ?? pack.pressRows[3] ?? pack.pressRows.compactMap { $0 }.randomElement()
+            case .backspace: buffer = pack.pressBackspace ?? pack.pressRows[1] ?? pack.pressRows.compactMap { $0 }.randomElement()
             }
         } else {
             switch role {
@@ -188,28 +190,26 @@ final class SoundEngine {
         pack.releaseEnter = loadBuffer(pack: id, sub: "release", name: "ENTER")
         pack.releaseBackspace = loadBuffer(pack: id, sub: "release", name: "BACKSPACE")
 
-        normalize(pack)
+        normalize(buffers: allBuffers(pack))
 
         packLock.lock()
         packs[id] = pack
         packLock.unlock()
     }
 
-    private var allBuffers: (LoadedPack) -> [AVAudioPCMBuffer] {
-        { pack in
-            (pack.pressRows.compactMap { $0 }) + [
-                pack.pressSpace, pack.pressEnter, pack.pressBackspace,
-                pack.releaseGeneric, pack.releaseSpace, pack.releaseEnter, pack.releaseBackspace,
-            ].compactMap { $0 }
-        }
+    private func allBuffers(_ pack: LoadedPack) -> [AVAudioPCMBuffer] {
+        (pack.pressRows.compactMap { $0 }) + [
+            pack.pressSpace, pack.pressEnter, pack.pressBackspace,
+            pack.releaseGeneric, pack.releaseSpace, pack.releaseEnter, pack.releaseBackspace,
+        ].compactMap { $0 }
     }
 
-    /// Scale the whole pack so its loudest sample peaks at -1 dBFS. Keeps the
+    /// Scale the whole set so its loudest sample peaks at -1 dBFS. Keeps the
     /// press/release balance of the original recording but makes packs
     /// interchangeable without volume jumps.
-    private func normalize(_ pack: LoadedPack) {
+    func normalize(buffers: [AVAudioPCMBuffer]) {
         var peak: Float = 0
-        for buffer in allBuffers(pack) {
+        for buffer in buffers {
             guard let data = buffer.floatChannelData else { continue }
             for ch in 0..<Int(buffer.format.channelCount) {
                 for i in 0..<Int(buffer.frameLength) {
@@ -219,7 +219,7 @@ final class SoundEngine {
         }
         guard peak > 0 else { return }
         let gain = 0.89 / peak
-        for buffer in allBuffers(pack) {
+        for buffer in buffers {
             guard let data = buffer.floatChannelData else { continue }
             for ch in 0..<Int(buffer.format.channelCount) {
                 for i in 0..<Int(buffer.frameLength) {
@@ -247,7 +247,7 @@ final class SoundEngine {
         }
     }
 
-    private func convert(_ input: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
+    func convert(_ input: AVAudioPCMBuffer) -> AVAudioPCMBuffer? {
         if input.format == format { return input }
         guard let converter = AVAudioConverter(from: input.format, to: format) else { return nil }
         let ratio = format.sampleRate / input.format.sampleRate
@@ -269,7 +269,7 @@ final class SoundEngine {
 
     /// Recorded samples routinely carry several ms of near-silence before the
     /// attack transient; cutting it is a free latency win.
-    private func trimLeadingSilence(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer {
+    func trimLeadingSilence(_ buffer: AVAudioPCMBuffer) -> AVAudioPCMBuffer {
         guard let data = buffer.floatChannelData, buffer.frameLength > 0 else { return buffer }
         let channels = Int(buffer.format.channelCount)
         let frames = Int(buffer.frameLength)

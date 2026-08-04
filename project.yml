@@ -30,3 +30,31 @@ targets:
         INFOPLIST_KEY_NSHumanReadableCopyright: ""
         INFOPLIST_KEY_CFBundleDisplayName: Macanikal
         COMBINE_HIDPI_IMAGES: YES
+  macanikalTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: macanikalTests
+    dependencies:
+      - target: macanikal
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.macanikal.app.tests
+        DEVELOPMENT_TEAM: S9B6RY8H74
+        CODE_SIGN_STYLE: Automatic
+        GENERATE_INFOPLIST_FILE: YES
+        SWIFT_VERSION: "5.0"
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Macanikal.app/Contents/MacOS/Macanikal
+        BUNDLE_LOADER: $(TEST_HOST)
+schemes:
+  macanikal:
+    build:
+      targets:
+        macanikal: all
+        macanikalTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - macanikalTests

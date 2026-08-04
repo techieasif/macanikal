@@ -19,6 +19,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     let controller = AppController()
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        // When acting as a unit-test host, don't start the audio engine or
+        // request the Input Monitoring permission.
+        guard ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil else { return }
         controller.start()
     }
 }

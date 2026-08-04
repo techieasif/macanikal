@@ -112,6 +112,13 @@ macanikal/
 ├── SoundEngine.swift         # AVAudioEngine voice pool, trimming, normalization
 ├── ControlPanelView.swift    # the SwiftUI panel
 └── Resources/Audio/<pack>/   # 13 switch packs (press/ + release/ mp3s)
+macanikalTests/               # unit tests (key mapping, DSP, pack catalog)
+```
+
+Run the tests with:
+
+```bash
+xcodebuild test -project macanikal.xcodeproj -scheme macanikal
 ```
 
 ## 📄 License
