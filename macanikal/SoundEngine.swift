@@ -1,5 +1,8 @@
 import AVFoundation
 import CoreAudio
+import os
+
+private let logger = Logger(subsystem: "com.macanikal.app", category: "engine")
 
 struct SoundPack: Identifiable, Equatable {
     let id: String       // folder name in Resources/Audio
@@ -48,8 +51,9 @@ final class SoundEngine {
         let varispeed: AVAudioUnitVarispeed
     }
 
-    private let engine = AVAudioEngine()
+    private var engine = AVAudioEngine()
     private var voices: [Voice] = []
+    private var volumeValue: Float = 0.7
     private static let voiceCount = 14
     private let format = AVAudioFormat(standardFormatWithSampleRate: 48000, channels: 2)!
 
@@ -61,24 +65,33 @@ final class SoundEngine {
     private var nextVoice = 0
 
     var masterVolume: Float {
-        get { engine.mainMixerNode.outputVolume }
-        set { engine.mainMixerNode.outputVolume = newValue }
+        get { volumeValue }
+        set {
+            volumeValue = newValue
+            engine.mainMixerNode.outputVolume = newValue
+        }
     }
 
-    func start(initialPack: String) throws {
+    private func buildGraph(on newEngine: AVAudioEngine) -> [Voice] {
+        var built: [Voice] = []
         for _ in 0..<Self.voiceCount {
             let player = AVAudioPlayerNode()
             let varispeed = AVAudioUnitVarispeed()
-            engine.attach(player)
-            engine.attach(varispeed)
-            engine.connect(player, to: varispeed, format: format)
-            engine.connect(varispeed, to: engine.mainMixerNode, format: format)
-            voices.append(Voice(player: player, varispeed: varispeed))
+            newEngine.attach(player)
+            newEngine.attach(varispeed)
+            newEngine.connect(player, to: varispeed, format: format)
+            newEngine.connect(varispeed, to: newEngine.mainMixerNode, format: format)
+            built.append(Voice(player: player, varispeed: varispeed))
         }
+        newEngine.isAutoShutdownEnabled = false
+        return built
+    }
 
-        engine.isAutoShutdownEnabled = false
+    func start(initialPack: String) throws {
+        voices = buildGraph(on: engine)
         engine.prepare()
         try engine.start()
+        engine.mainMixerNode.outputVolume = volumeValue
         shrinkIOBuffer()
         for voice in voices { voice.player.play() }
 
@@ -111,10 +124,11 @@ final class SoundEngine {
         let status = AudioObjectAddPropertyListenerBlock(
             AudioObjectID(kAudioObjectSystemObject), &address, DispatchQueue.main
         ) { [weak self] _, _ in
+            logger.notice("default output device changed")
             self?.scheduleRestart()
         }
         if status != noErr {
-            NSLog("macanikal: could not observe default output device (status \(status))")
+            logger.error("could not observe default output device (status \(status))")
         }
     }
 
@@ -128,16 +142,38 @@ final class SoundEngine {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
     }
 
+    /// A stopped-and-restarted AVAudioEngine keeps its output unit bound to
+    /// the device it was created on — after a Bluetooth toggle it reports the
+    /// stale hardware format and renders into the void. The only reliable
+    /// recovery is a brand-new engine: a fresh output unit always opens the
+    /// CURRENT default device.
     private func restartEngine(attempt: Int) {
+        NotificationCenter.default.removeObserver(
+            self, name: .AVAudioEngineConfigurationChange, object: engine)
         engine.stop()
-        engine.prepare()
+
+        let newEngine = AVAudioEngine()
+        let newVoices = buildGraph(on: newEngine)
+        newEngine.prepare()
         do {
-            try engine.start()
+            try newEngine.start()
+            newEngine.mainMixerNode.outputVolume = volumeValue
+
+            voiceLock.lock()
+            engine = newEngine
+            voices = newVoices
+            nextVoice = 0
+            voiceLock.unlock()
+
             shrinkIOBuffer()
-            for voice in voices { voice.player.play() }
-            NSLog("macanikal: audio engine restarted on device change")
+            for voice in newVoices { voice.player.play() }
+            NotificationCenter.default.addObserver(
+                self, selector: #selector(configurationChanged),
+                name: .AVAudioEngineConfigurationChange, object: newEngine)
+            let hw = newEngine.outputNode.outputFormat(forBus: 0)
+            logger.notice("engine rebuilt; output \(Int(hw.sampleRate))Hz \(hw.channelCount)ch (attempt \(attempt))")
         } catch {
-            NSLog("macanikal: engine restart failed (attempt \(attempt)): \(error)")
+            logger.error("engine rebuild failed (attempt \(attempt)): \(error)")
             guard attempt < 3 else { return }
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
                 self?.restartEngine(attempt: attempt + 1)
@@ -145,19 +181,50 @@ final class SoundEngine {
         }
     }
 
+    /// Ask for the smallest IO buffer the current output device supports.
+    /// 128 frames is fine on built-in hardware, but Bluetooth devices have
+    /// much larger minimums — forcing 128 there starves the stream into
+    /// silence, so clamp to the device's own reported range.
     private func shrinkIOBuffer() {
         guard let unit = engine.outputNode.audioUnit else { return }
-        var frames: UInt32 = 128
+
+        var desired: UInt32 = 128
+        var deviceID = AudioDeviceID(0)
+        var idSize = UInt32(MemoryLayout<AudioDeviceID>.size)
+        if AudioUnitGetProperty(unit, kAudioOutputUnitProperty_CurrentDevice,
+                                kAudioUnitScope_Global, 0, &deviceID, &idSize) == noErr {
+            var range = AudioValueRange(mMinimum: 0, mMaximum: 0)
+            var rangeSize = UInt32(MemoryLayout<AudioValueRange>.size)
+            var address = AudioObjectPropertyAddress(
+                mSelector: kAudioDevicePropertyBufferFrameSizeRange,
+                mScope: kAudioObjectPropertyScopeOutput,
+                mElement: kAudioObjectPropertyElementMain)
+            if AudioObjectGetPropertyData(deviceID, &address, 0, nil, &rangeSize, &range) == noErr,
+               range.mMaximum > 0 {
+                desired = min(max(desired, UInt32(range.mMinimum)), UInt32(range.mMaximum))
+            }
+        }
+
+        var frames = desired
         let status = AudioUnitSetProperty(
             unit, kAudioDevicePropertyBufferFrameSize, kAudioUnitScope_Global, 0,
             &frames, UInt32(MemoryLayout<UInt32>.size))
-        if status != noErr {
-            NSLog("macanikal: could not set IO buffer size (status \(status))")
+        if status == noErr {
+            logger.notice("IO buffer set to \(frames) frames")
+        } else {
+            logger.error("could not set IO buffer size (status \(status))")
         }
     }
 
     /// Safe to call from any thread (the event-tap thread calls it directly).
     func play(packId: String, role: KeyRole, isDown: Bool, rate: Float, pan: Float, gain: Float) {
+        // Last line of defense: if a device change slipped past the listeners
+        // and killed the engine, notice it on the next keystroke and recover.
+        if !engine.isRunning {
+            DispatchQueue.main.async { [weak self] in self?.scheduleRestart() }
+            return
+        }
+
         packLock.lock()
         let pack = packs[packId]
         packLock.unlock()
