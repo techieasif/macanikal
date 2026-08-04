@@ -122,4 +122,4 @@ macanikal/
 
 [MIT](LICENSE) — sounds © [kbsim](https://github.com/tplai/kbsim) (MIT).
 
-*Inspired by [Klack](https://tryklack.com). Not affiliated with Cherry, Gateron, Kailh, Topre, IBM, or any switch manufacturer — the names identify the recorded switches.*
+*Not affiliated with Cherry, Gateron, Kailh, Topre, IBM, or any switch manufacturer — the names identify the recorded switches.*
