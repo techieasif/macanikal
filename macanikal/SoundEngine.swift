@@ -1,4 +1,5 @@
 import AVFoundation
+import CoreAudio
 
 struct SoundPack: Identifiable, Equatable {
     let id: String       // folder name in Resources/Audio
@@ -91,17 +92,55 @@ final class SoundEngine {
         NotificationCenter.default.addObserver(
             self, selector: #selector(configurationChanged),
             name: .AVAudioEngineConfigurationChange, object: engine)
+        installDefaultDeviceListener()
     }
 
     @objc private func configurationChanged(_ note: Notification) {
-        // Output device changed (headphones plugged in, etc.) — restart the graph.
-        DispatchQueue.main.async { [self] in
-            do {
-                try engine.start()
-                shrinkIOBuffer()
-                for voice in voices { voice.player.play() }
-            } catch {
-                NSLog("macanikal: engine restart failed: \(error)")
+        DispatchQueue.main.async { [weak self] in self?.scheduleRestart() }
+    }
+
+    /// AVAudioEngineConfigurationChange is not reliably posted on macOS when
+    /// the default output device changes (e.g. Bluetooth headphones connect
+    /// or disconnect) — the engine keeps rendering into a dead device and
+    /// goes silent. Watch CoreAudio's default-output property directly.
+    private func installDefaultDeviceListener() {
+        var address = AudioObjectPropertyAddress(
+            mSelector: kAudioHardwarePropertyDefaultOutputDevice,
+            mScope: kAudioObjectPropertyScopeGlobal,
+            mElement: kAudioObjectPropertyElementMain)
+        let status = AudioObjectAddPropertyListenerBlock(
+            AudioObjectID(kAudioObjectSystemObject), &address, DispatchQueue.main
+        ) { [weak self] _, _ in
+            self?.scheduleRestart()
+        }
+        if status != noErr {
+            NSLog("macanikal: could not observe default output device (status \(status))")
+        }
+    }
+
+    private var restartWork: DispatchWorkItem?
+
+    /// Debounced: device switches fire several change events back to back.
+    private func scheduleRestart() {
+        restartWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.restartEngine(attempt: 0) }
+        restartWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.35, execute: work)
+    }
+
+    private func restartEngine(attempt: Int) {
+        engine.stop()
+        engine.prepare()
+        do {
+            try engine.start()
+            shrinkIOBuffer()
+            for voice in voices { voice.player.play() }
+            NSLog("macanikal: audio engine restarted on device change")
+        } catch {
+            NSLog("macanikal: engine restart failed (attempt \(attempt)): \(error)")
+            guard attempt < 3 else { return }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) { [weak self] in
+                self?.restartEngine(attempt: attempt + 1)
             }
         }
     }
