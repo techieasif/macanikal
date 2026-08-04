@@ -7,16 +7,16 @@
 <meta name="description" content="A tiny, obsessively low-latency menu bar app that plays real mechanical switch recordings as you type. Try all 13 switches right here in your browser."/>
 <style>
   :root {
-    --bg: #0e0d0c;
-    --bg2: #171512;
-    --card: #1d1a17;
-    --cap: #2e2b28;
-    --cap-top: #25221f;
-    --text: #f3ede4;
-    --muted: #a89f92;
+    --bg: #05060c;
+    --text: #eef1fa;
+    --muted: #9aa3bd;
     --accent: #4f7cff;
+    --accent2: #8b5cf6;
     --accent-dark: #2b56e8;
-    --accent-shadow: #16308f;
+    --glass: linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
+    --glass-strong: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
+    --stroke: rgba(255,255,255,0.12);
+    --stroke-bright: rgba(255,255,255,0.25);
     --clicky: #6aa9ff;
     --tactile: #f5a623;
     --linear: #ff7a9c;
@@ -31,119 +31,251 @@
     line-height: 1.6;
     overflow-x: hidden;
   }
-  .wrap { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+  ::selection { background: rgba(79,124,255,0.4); }
+  .wrap { max-width: 1020px; margin: 0 auto; padding: 0 24px; }
 
-  /* hero */
-  header.wrap { padding: 110px 24px 48px; text-align: center; }
-  .logo-caps { display: inline-flex; gap: 8px; flex-wrap: wrap; justify-content: center; }
-  .logo-caps span {
-    display: inline-block; width: 52px; height: 52px; line-height: 48px;
-    background: linear-gradient(180deg, var(--cap), #1b1917);
-    border-radius: 10px; font-weight: 800; font-size: 26px;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    box-shadow: 0 5px 0 #000, inset 0 1px 0 rgba(255,255,255,0.06);
+  /* ---- aurora background (static gradients — cheap to composite) ---- */
+  .aurora {
+    position: fixed; inset: 0; z-index: -2; pointer-events: none;
+    background:
+      radial-gradient(58% 46% at 18% 4%, rgba(43,86,232,0.32), transparent 70%),
+      radial-gradient(44% 38% at 88% 14%, rgba(139,92,246,0.26), transparent 70%),
+      radial-gradient(50% 42% at 48% 58%, rgba(29,63,174,0.18), transparent 70%),
+      radial-gradient(40% 34% at 82% 96%, rgba(34,211,238,0.10), transparent 70%);
   }
-  .logo-caps span.hl {
-    background: linear-gradient(180deg, var(--accent), var(--accent-dark));
-    color: #fff;
-    box-shadow: 0 5px 0 var(--accent-shadow), inset 0 1px 0 rgba(255,255,255,0.25);
+
+  /* ---- glass primitives ---- */
+  .glass {
+    background: var(--glass);
+    border: 1px solid var(--stroke);
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+    box-shadow: 0 20px 60px rgba(2,4,18,0.55), inset 0 1px 0 rgba(255,255,255,0.16);
   }
-  h1 { font-size: clamp(28px, 5vw, 44px); margin: 28px 0 10px; font-weight: 800; letter-spacing: -0.02em; }
-  h1 em { font-style: normal; color: var(--accent); }
-  .tagline { color: var(--muted); font-size: 18px; max-width: 560px; margin: 0 auto 28px; }
-  .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* ---- nav ---- */
+  nav {
+    position: sticky; top: 16px; z-index: 50;
+    max-width: 720px; margin: 16px auto 0; padding: 10px 12px 10px 20px;
+    border-radius: 999px;
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  @media (max-width: 760px) { nav { margin: 16px 16px 0; } }
+  .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.01em; text-decoration: none; color: var(--text); }
+  .nav-logo .cap {
+    width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
+    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 15px; font-weight: 800; color: #fff;
+    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
+    box-shadow: 0 3px 10px rgba(79,124,255,0.5), inset 0 1px 0 rgba(255,255,255,0.35);
+  }
+  .nav-links { display: flex; align-items: center; gap: 6px; }
+  .nav-links a {
+    color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600;
+    padding: 8px 14px; border-radius: 999px; transition: all .18s ease;
+  }
+  .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
+  .nav-links a.nav-cta {
+    color: #fff; background: linear-gradient(160deg, var(--accent), var(--accent-dark));
+    box-shadow: 0 4px 16px rgba(79,124,255,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .nav-links a.nav-cta:hover { filter: brightness(1.1); }
+
+  /* ---- hero ---- */
+  header { padding: 96px 24px 56px; text-align: center; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 7px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted);
+    background: rgba(255,255,255,0.06); border: 1px solid var(--stroke);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    margin-bottom: 28px;
+  }
+  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 12px #34d399; }
+  h1 {
+    font-size: clamp(38px, 6.4vw, 68px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08;
+    background: linear-gradient(180deg, #ffffff 30%, #b9c6ef);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    margin-bottom: 8px;
+  }
+  h1 .thock {
+    background: linear-gradient(120deg, #6aa9ff, var(--accent) 40%, var(--accent2));
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 0 24px rgba(79,124,255,0.45));
+  }
+  .tagline { color: var(--muted); font-size: 19px; max-width: 600px; margin: 18px auto 36px; }
+  .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .btn {
-    display: inline-block; padding: 12px 22px; border-radius: 12px;
-    text-decoration: none; font-weight: 700; font-size: 15px; transition: transform .1s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 26px; border-radius: 16px;
+    text-decoration: none; font-weight: 700; font-size: 15px;
+    transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
   }
-  .btn:active { transform: translateY(2px); }
-  .btn-primary { background: linear-gradient(180deg, var(--accent), var(--accent-dark)); color: #fff; box-shadow: 0 4px 0 var(--accent-shadow); }
-  .btn-ghost { background: var(--card); color: var(--text); box-shadow: 0 4px 0 #000; }
+  .btn:hover { transform: translateY(-2px); }
+  .btn:active { transform: translateY(1px); }
+  .btn-primary {
+    color: #fff; position: relative; overflow: hidden;
+    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
+    box-shadow: 0 10px 32px rgba(79,124,255,0.5), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.2);
+  }
+  .btn-primary::after { /* specular sweep */
+    content: ""; position: absolute; top: 0; left: -80%; width: 60%; height: 100%;
+    background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
+    transform: skewX(-20deg); transition: left .5s ease;
+  }
+  .btn-primary:hover::after { left: 120%; }
+  .btn-glass {
+    color: var(--text);
+    background: var(--glass); border: 1px solid var(--stroke);
+    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+  }
+  .btn-glass:hover { border-color: var(--stroke-bright); background: var(--glass-strong); }
 
-  /* demo */
-  .demo { background: var(--bg2); border-radius: 24px; padding: 28px; margin: 24px 0 64px; box-shadow: 0 20px 60px rgba(0,0,0,0.5); }
-  .demo-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
-  .demo-head h2 { font-size: 20px; }
-  .hint { color: var(--muted); font-size: 13px; }
-  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+  /* ---- demo ---- */
+  .demo { border-radius: 28px; padding: 30px; margin: 8px 0 90px; position: relative; }
+  .demo::before { /* top rim light */
+    content: ""; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+  }
+  .demo-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
+  .demo-head h2 { font-size: 21px; letter-spacing: -0.01em; }
+  .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
   .pill {
-    border: none; cursor: pointer; padding: 7px 14px; border-radius: 999px;
-    background: var(--card); color: var(--muted); font-size: 13px; font-weight: 600;
-    display: inline-flex; align-items: center; gap: 7px; transition: all .12s ease;
+    border: 1px solid var(--stroke); cursor: pointer; padding: 8px 15px; border-radius: 999px;
+    background: rgba(255,255,255,0.05); color: var(--muted); font-size: 13px; font-weight: 600;
+    display: inline-flex; align-items: center; gap: 7px;
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    transition: all .15s ease;
   }
-  .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
-  .pill:hover { color: var(--text); }
-  .pill.active { background: var(--text); color: var(--bg); }
-  .vol { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 13px; }
-  input[type=range] { accent-color: var(--accent); width: 130px; }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+  .pill:hover { color: var(--text); border-color: var(--stroke-bright); transform: translateY(-1px); }
+  .pill.active {
+    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
+    color: #fff; border-color: transparent;
+    box-shadow: 0 6px 20px rgba(79,124,255,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+  }
+  .vol { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
+  input[type=range] {
+    -webkit-appearance: none; appearance: none; width: 140px; height: 6px; border-radius: 999px;
+    background: linear-gradient(90deg, var(--accent) var(--fill, 70%), rgba(255,255,255,0.12) var(--fill, 70%));
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.4);
+    cursor: pointer;
+  }
 
-  /* keyboard */
-  .kb-outer { background: #0a0908; border-radius: 18px; padding: 16px; outline: none; cursor: pointer; border: 2px solid transparent; transition: border-color .15s ease; }
-  .kb-outer:focus { border-color: var(--accent); cursor: default; }
-  .kb-outer:not(:focus):hover { border-color: #3a352f; }
+  /* ---- keyboard ---- */
+  .kb-outer {
+    background: rgba(5,7,16,0.55); border: 1px solid var(--stroke);
+    border-radius: 20px; padding: 18px; outline: none; cursor: pointer;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.5);
+    transition: border-color .2s ease, box-shadow .2s ease;
+  }
+  .kb-outer:focus {
+    border-color: rgba(79,124,255,0.7); cursor: default;
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.5), 0 0 0 4px rgba(79,124,255,0.18), 0 0 40px rgba(79,124,255,0.25);
+  }
+  .kb-outer:not(:focus):hover { border-color: var(--stroke-bright); }
   .kb { display: flex; flex-direction: column; gap: 6px; user-select: none; }
   .kb-row { display: flex; gap: 6px; }
   .key {
-    height: 46px; border-radius: 8px;
-    background: linear-gradient(180deg, var(--cap), #1b1917);
-    box-shadow: 0 4px 0 #000, inset 0 1px 0 rgba(255,255,255,0.05);
+    height: 46px; border-radius: 9px;
+    background: linear-gradient(180deg, #2b2f3d, #191c26);
+    border: 1px solid rgba(255,255,255,0.07);
+    box-shadow: 0 4px 0 rgba(0,0,0,0.85), inset 0 1px 0 rgba(255,255,255,0.09);
     display: flex; align-items: center; justify-content: center;
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 12px; font-weight: 600; color: #cfc7ba;
+    font-size: 12px; font-weight: 600; color: #b7bfd6;
     flex-grow: 0; flex-shrink: 0;
     transition: transform .04s ease, box-shadow .04s ease, background .04s;
   }
   .key.pressed {
     transform: translateY(3px);
-    box-shadow: 0 1px 0 #000, inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: 0 1px 0 rgba(0,0,0,0.85), 0 0 18px rgba(79,124,255,0.6), inset 0 1px 0 rgba(255,255,255,0.25);
     background: linear-gradient(180deg, var(--accent), var(--accent-dark));
-    color: #fff;
+    color: #fff; border-color: rgba(255,255,255,0.25);
   }
-  .kb-msg { text-align: center; color: var(--muted); font-size: 13px; margin-top: 14px; }
+  .kb-msg { text-align: center; color: var(--muted); font-size: 13px; margin-top: 16px; }
   .kb-msg b { color: var(--accent); }
 
-  /* features */
-  section { padding: 24px 0 64px; }
-  h2.sec { font-size: clamp(24px, 4vw, 32px); font-weight: 800; margin-bottom: 8px; letter-spacing: -0.02em; }
-  .sec-sub { color: var(--muted); margin-bottom: 32px; max-width: 640px; }
-  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-  .card { background: var(--card); border-radius: 16px; padding: 22px; }
-  .card .emoji { font-size: 26px; }
-  .card h3 { font-size: 16px; margin: 10px 0 6px; }
-  .card p { color: var(--muted); font-size: 14px; }
+  /* ---- sections ---- */
+  section { padding: 10px 0 90px; }
+  h2.sec { font-size: clamp(26px, 4vw, 36px); font-weight: 800; margin-bottom: 10px; letter-spacing: -0.02em; }
+  .sec-sub { color: var(--muted); margin-bottom: 36px; max-width: 660px; font-size: 16px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+  .card {
+    border-radius: 22px; padding: 26px; position: relative; overflow: hidden;
+    transition: transform .25s ease, border-color .25s ease, box-shadow .25s ease;
+  }
+  .card:hover {
+    transform: translateY(-5px);
+    border-color: var(--stroke-bright);
+    box-shadow: 0 24px 70px rgba(2,4,18,0.6), 0 0 30px rgba(79,124,255,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+  }
+  .card .chip {
+    width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 22px;
+    background: linear-gradient(160deg, rgba(79,124,255,0.35), rgba(139,92,246,0.2));
+    border: 1px solid rgba(120,150,255,0.35);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px rgba(79,124,255,0.2);
+    margin-bottom: 14px;
+  }
+  .card h3 { font-size: 17px; margin-bottom: 6px; letter-spacing: -0.01em; }
+  .card p { color: var(--muted); font-size: 14.5px; }
 
-  /* pipeline */
-  .pipe { background: var(--card); border-radius: 16px; padding: 26px; overflow-x: auto; }
+  /* ---- pipeline ---- */
+  .pipe { border-radius: 24px; padding: 30px; overflow-x: auto; }
   .pipe pre {
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
-    font-size: 13px; line-height: 1.7; color: var(--muted); white-space: pre;
+    font-size: 13.5px; line-height: 1.75; color: var(--muted); white-space: pre;
   }
-  .pipe pre b { color: var(--accent); font-weight: 600; }
+  .pipe pre b { color: var(--accent); font-weight: 600; text-shadow: 0 0 16px rgba(79,124,255,0.5); }
 
-  footer { border-top: 1px solid #2a2622; padding: 36px 0 60px; color: var(--muted); font-size: 14px; text-align: center; }
+  footer { border-top: 1px solid rgba(255,255,255,0.08); padding: 40px 0 64px; color: var(--muted); font-size: 14px; text-align: center; }
   footer a { color: var(--text); }
+
+  /* ---- reveal on scroll ---- */
+  .reveal { opacity: 0; transform: translateY(26px); transition: opacity .7s ease, transform .7s ease; }
+  .reveal.in { opacity: 1; transform: none; }
+
   @media (max-width: 720px) {
     .key { height: 34px; font-size: 9px; border-radius: 6px; }
     .kb, .kb-row { gap: 4px; }
+    .demo { padding: 20px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    html { scroll-behavior: auto; }
   }
 </style>
 </head>
 <body>
 
-<header class="wrap">
-  <div class="logo-caps" aria-label="Macanikal">
-    <span>M</span><span>A</span><span>C</span><span class="hl">A</span><span>N</span><span>I</span><span>K</span><span>A</span><span>L</span>
+<div class="aurora" aria-hidden="true"></div>
+
+<nav class="glass">
+  <a class="nav-logo" href="#"><span class="cap">M</span>Macanikal</a>
+  <div class="nav-links">
+    <a href="#demo">Demo</a>
+    <a href="#features">Features</a>
+    <a href="#how">Latency</a>
+    <a class="nav-cta" href="https://github.com/techieasif/macanikal">GitHub</a>
   </div>
-  <h1>Your keyboard, but it goes <em>thock</em>.</h1>
-  <p class="tagline">A tiny menu bar app for macOS that plays real mechanical switch recordings as you type — with obsessive, single-digit-millisecond latency.</p>
+</nav>
+
+<header>
+  <div class="badge"><span class="pulse"></span> Free &amp; open source · macOS 14+</div>
+  <h1>Your keyboard,<br/>but it goes <span class="thock">thock</span>.</h1>
+  <p class="tagline">A tiny menu bar app that plays real mechanical switch recordings as you type — with obsessive, single-digit-millisecond latency.</p>
   <div class="cta">
-    <a class="btn btn-primary" href="https://github.com/techieasif/macanikal#-getting-started">Get it for Mac</a>
-    <a class="btn btn-ghost" href="https://github.com/techieasif/macanikal">View on GitHub</a>
+    <a class="btn btn-primary" href="https://github.com/techieasif/macanikal#-getting-started">⌘ Get it for Mac</a>
+    <a class="btn btn-glass" href="#demo">🔊 Try the switches</a>
   </div>
 </header>
 
 <div class="wrap">
-  <div class="demo">
+  <div class="demo glass reveal" id="demo">
     <div class="demo-head">
       <h2>🔊 Try the switches</h2>
       <div class="vol">
@@ -160,22 +292,22 @@
 </div>
 
 <section class="wrap" id="features">
-  <h2 class="sec">Every detail tuned for feel</h2>
-  <p class="sec-sub">Keyboard sound apps live or die by one thing: does the sound land <i>with</i> the keystroke, or just after it? Macanikal is built around that question.</p>
+  <h2 class="sec reveal">Every detail tuned for feel</h2>
+  <p class="sec-sub reveal">Keyboard sound apps live or die by one thing: does the sound land <i>with</i> the keystroke, or just after it? Macanikal is built around that question.</p>
   <div class="grid">
-    <div class="card"><div class="emoji">🎧</div><h3>13 real switch packs</h3><p>Recorded from actual boards — Holy Panda, Topre, Buckling Spring, MX classics and more. No synthesis, no imitation.</p></div>
-    <div class="card"><div class="emoji">⚡</div><h3>Single-digit-ms latency</h3><p>A listen-only event tap feeds an always-running audio voice pool with a 128-frame hardware buffer (~2.7 ms). Sound starts on the next render cycle.</p></div>
-    <div class="card"><div class="emoji">🎹</div><h3>Row-accurate samples</h3><p>Each keyboard row has its own recording. Space thumps, enter clunks, backspace snaps — like a real board.</p></div>
-    <div class="card"><div class="emoji">🔼</div><h3>Press and release</h3><p>Real switches make sound both ways. So does Macanikal — with a toggle if you prefer press-only.</p></div>
-    <div class="card"><div class="emoji">🎲</div><h3>Humanized playback</h3><p>Subtle random pitch, stereo position, and level on every keystroke, so fast typing never sounds like a machine gun.</p></div>
-    <div class="card"><div class="emoji">🔒</div><h3>Private by design</h3><p>Listen-only tap, zero logging, zero network. Key codes become sounds and are immediately forgotten.</p></div>
+    <div class="card glass reveal"><div class="chip">🎧</div><h3>13 real switch packs</h3><p>Recorded from actual boards — Holy Panda, Topre, Buckling Spring, MX classics and more. No synthesis, no imitation.</p></div>
+    <div class="card glass reveal"><div class="chip">⚡</div><h3>Single-digit-ms latency</h3><p>A listen-only event tap feeds an always-running audio voice pool with a 128-frame hardware buffer (~2.7 ms). Sound starts on the next render cycle.</p></div>
+    <div class="card glass reveal"><div class="chip">🎹</div><h3>Row-accurate samples</h3><p>Each keyboard row has its own recording. Space thumps, enter clunks, backspace snaps — like a real board.</p></div>
+    <div class="card glass reveal"><div class="chip">🔼</div><h3>Press and release</h3><p>Real switches make sound both ways. So does Macanikal — with a toggle if you prefer press-only.</p></div>
+    <div class="card glass reveal"><div class="chip">🎲</div><h3>Humanized playback</h3><p>Subtle random pitch, stereo position, and level on every keystroke, so fast typing never sounds like a machine gun.</p></div>
+    <div class="card glass reveal"><div class="chip">🔒</div><h3>Private by design</h3><p>Listen-only tap, zero logging, zero network. Key codes become sounds and are immediately forgotten.</p></div>
   </div>
 </section>
 
 <section class="wrap" id="how">
-  <h2 class="sec">The keystroke-to-sound path</h2>
-  <p class="sec-sub">Everything that could add milliseconds has been removed — including the 5–20 ms of silent lead-in hiding at the start of most recorded samples, which reads as input lag.</p>
-  <div class="pipe">
+  <h2 class="sec reveal">The keystroke-to-sound path</h2>
+  <p class="sec-sub reveal">Everything that could add milliseconds has been removed — including the 5–20 ms of silent lead-in hiding at the start of most recorded samples, which reads as input lag.</p>
+  <div class="pipe glass reveal">
 <pre>
 keystroke
    │  <b>listen-only CGEventTap</b> · dedicated userInteractive thread
@@ -352,7 +484,7 @@ const pills = document.getElementById("pills");
 for (const p of PACKS) {
   const b = document.createElement("button");
   b.className = "pill" + (p.id === current ? " active" : "");
-  b.innerHTML = `<span class="dot" style="background:${STYLE_COLORS[p.style]}"></span>${p.name}`;
+  b.innerHTML = `<span class="dot" style="background:${STYLE_COLORS[p.style]}; color:${STYLE_COLORS[p.style]}"></span>${p.name}`;
   b.addEventListener("click", async () => {
     current = p.id;
     localStorage.setItem("pack", p.id);
@@ -365,9 +497,19 @@ for (const p of PACKS) {
   pills.appendChild(b);
 }
 
-document.getElementById("vol").addEventListener("input", e => {
-  if (master) master.gain.value = e.target.value / 100;
+const vol = document.getElementById("vol");
+function paintVol() { vol.style.setProperty("--fill", vol.value + "%"); }
+vol.addEventListener("input", () => {
+  if (master) master.gain.value = vol.value / 100;
+  paintVol();
 });
+paintVol();
+
+// reveal on scroll
+const io = new IntersectionObserver(entries => {
+  for (const e of entries) if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); }
+}, { threshold: 0.12 });
+document.querySelectorAll(".reveal").forEach(el => io.observe(el));
 
 // warm the default pack on first interaction
 window.addEventListener("pointerdown", () => loadPack(current), { once: true });
