@@ -112,6 +112,9 @@ They do get row-appropriate samples; dedicated recordings only exist for space, 
 **Is my typing being logged?**
 No. The event tap is listen-only, key codes are mapped to a sound and immediately discarded, and the app has no network access of any kind.
 
+**Why do sounds stop while I type a password?**
+That's macOS Secure Event Input: while a password field has keyboard focus, the system blocks keystroke access for every app — no exceptions, by design. Macanikal shows a 🔒 in the menu bar while it's active and resumes automatically. Your passwords are provably never heard.
+
 ## 🛠 Project layout
 
 ```

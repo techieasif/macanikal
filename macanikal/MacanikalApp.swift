@@ -9,9 +9,19 @@ struct MacanikalApp: App {
             ControlPanelView()
                 .environmentObject(appDelegate.controller)
         } label: {
-            Image(systemName: "keyboard.fill")
+            MenuBarLabel(controller: appDelegate.controller)
         }
         .menuBarExtraStyle(.window)
+    }
+}
+
+/// Shows a lock while a password field holds keyboard focus (Secure Event
+/// Input), so paused sound reads as intentional rather than broken.
+private struct MenuBarLabel: View {
+    @ObservedObject var controller: AppController
+
+    var body: some View {
+        Image(systemName: controller.secureInputActive ? "lock.fill" : "keyboard.fill")
     }
 }
 

@@ -9,6 +9,9 @@ struct ControlPanelView: View {
             if !controller.hasInputPermission {
                 permissionBanner
             }
+            if controller.secureInputActive {
+                secureInputBanner
+            }
             switchList
             volumeSlider
             toggles
@@ -48,6 +51,19 @@ struct ControlPanelView: View {
         .padding(10)
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(.yellow.opacity(0.15), in: RoundedRectangle(cornerRadius: 8))
+    }
+
+    private var secureInputBanner: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Label("Sounds paused — secure input", systemImage: "lock.fill")
+                .font(.caption.bold())
+            Text("A password field has keyboard focus. macOS blocks keystroke access so your passwords stay private. Sounds resume automatically.")
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.blue.opacity(0.12), in: RoundedRectangle(cornerRadius: 8))
     }
 
     private var switchList: some View {

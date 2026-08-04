@@ -1,4 +1,5 @@
 import AppKit
+import Carbon
 import Combine
 import Foundation
 
@@ -22,6 +23,10 @@ final class AppController: ObservableObject {
         didSet { defaults.set(playOnRepeat, forKey: "playOnRepeat"); syncConfig() }
     }
     @Published var hasInputPermission = KeyEventTap.hasPermission()
+    /// True while a password field holds keyboard focus (macOS Secure Event
+    /// Input). Keystrokes are invisible to the app during this — by design —
+    /// so sounds pause; we surface it instead of looking broken.
+    @Published var secureInputActive = false
 
     private let defaults = UserDefaults.standard
     private let engine = SoundEngine()
@@ -38,6 +43,7 @@ final class AppController: ObservableObject {
     private var config = Config()
     private let configLock = NSLock()
     private var permissionTimer: Timer?
+    private var secureInputTimer: Timer?
 
     init() {
         defaults.register(defaults: [
@@ -73,6 +79,16 @@ final class AppController: ObservableObject {
         } else {
             KeyEventTap.requestPermission()
             waitForPermission()
+        }
+
+        // No notification API exists for secure input; a 1 Hz poll is the
+        // standard approach and costs nothing.
+        secureInputTimer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { [weak self] _ in
+            guard let self else { return }
+            let active = IsSecureEventInputEnabled()
+            if active != self.secureInputActive {
+                self.secureInputActive = active
+            }
         }
     }
 
