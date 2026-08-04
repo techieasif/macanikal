@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/assets/banner.svg" alt="Macanikal" width="720"/>
+  <img src="docs/assets/banner.png" alt="Macanikal — your keyboard, but it goes thock" width="760"/>
 </p>
 
 <h3 align="center">Real mechanical keyboard sounds for every keystroke on your Mac.</h3>
@@ -48,6 +48,16 @@
 | Blue Alps | Clicky | Vintage crispness |
 
 Sound recordings come from the MIT-licensed [kbsim](https://github.com/tplai/kbsim) project by Thomas Lai. 🙏
+
+## 🎭 Meet the switch squad
+
+Every pack belongs to a family, and every family has a face — meet Thocky (the mascot) and the squad:
+
+<p align="center">
+  <img src="docs/assets/squad.png" alt="Thocky with the switch squad: Klik (clicky), Bump (tactile), Glide (linear), and Dome (thocky)" width="760"/>
+</p>
+
+Tap a character on the [website](https://techieasif.github.io/macanikal/) to hear their family's sound live in your browser.
 
 ## ⚡ How it stays fast
 
@@ -113,6 +123,7 @@ macanikal/
 ├── ControlPanelView.swift    # the SwiftUI panel
 └── Resources/Audio/<pack>/   # 13 switch packs (press/ + release/ mp3s)
 macanikalTests/               # unit tests (key mapping, DSP, pack catalog)
+tools/launch_kit.swift        # renders Thocky, the squad, app icon, and launch video frames
 ```
 
 Run the tests with:
