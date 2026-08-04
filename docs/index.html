@@ -13,10 +13,11 @@
     --accent: #4f7cff;
     --accent2: #8b5cf6;
     --accent-dark: #2b56e8;
-    --glass: linear-gradient(145deg, rgba(255,255,255,0.10), rgba(255,255,255,0.03));
-    --glass-strong: linear-gradient(145deg, rgba(255,255,255,0.14), rgba(255,255,255,0.05));
-    --stroke: rgba(255,255,255,0.12);
-    --stroke-bright: rgba(255,255,255,0.25);
+    --card: #12152a;
+    --card-2: #1a1e38;
+    --stroke: #2a2f4d;
+    --stroke-bright: #3d4573;
+    --ink: #0b1030;
     --clicky: #6aa9ff;
     --tactile: #f5a623;
     --linear: #ff7a9c;
@@ -26,6 +27,8 @@
   html { scroll-behavior: smooth; }
   body {
     background: var(--bg);
+    background-image: radial-gradient(rgba(255,255,255,0.045) 1.5px, transparent 1.5px);
+    background-size: 26px 26px;
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
     line-height: 1.6;
@@ -34,23 +37,11 @@
   ::selection { background: rgba(79,124,255,0.4); }
   .wrap { max-width: 1020px; margin: 0 auto; padding: 0 24px; }
 
-  /* ---- aurora background (static gradients — cheap to composite) ---- */
-  .aurora {
-    position: fixed; inset: 0; z-index: -2; pointer-events: none;
-    background:
-      radial-gradient(58% 46% at 18% 4%, rgba(43,86,232,0.32), transparent 70%),
-      radial-gradient(44% 38% at 88% 14%, rgba(139,92,246,0.26), transparent 70%),
-      radial-gradient(50% 42% at 48% 58%, rgba(29,63,174,0.18), transparent 70%),
-      radial-gradient(40% 34% at 82% 96%, rgba(34,211,238,0.10), transparent 70%);
-  }
-
-  /* ---- glass primitives ---- */
+  /* ---- sticker cards (flat, ink-outline, hard offset shadow) ---- */
   .glass {
-    background: var(--glass);
-    border: 1px solid var(--stroke);
-    backdrop-filter: blur(16px) saturate(160%);
-    -webkit-backdrop-filter: blur(16px) saturate(160%);
-    box-shadow: 0 20px 60px rgba(2,4,18,0.55), inset 0 1px 0 rgba(255,255,255,0.16);
+    background: var(--card);
+    border: 2px solid var(--stroke);
+    box-shadow: 0 6px 0 rgba(0, 2, 12, 0.45);
   }
 
   /* ---- nav ---- */
@@ -64,9 +55,8 @@
   .nav-logo { display: flex; align-items: center; gap: 10px; font-weight: 800; letter-spacing: -0.01em; text-decoration: none; color: var(--text); }
   .nav-logo .cap {
     width: 30px; height: 30px; border-radius: 8px; display: grid; place-items: center;
-    font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 15px; font-weight: 800; color: #fff;
-    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
-    box-shadow: 0 3px 10px rgba(79,124,255,0.5), inset 0 1px 0 rgba(255,255,255,0.35);
+    background: var(--accent);
+    box-shadow: 0 2px 0 var(--accent-dark);
   }
   .nav-links { display: flex; align-items: center; gap: 6px; }
   .nav-links a {
@@ -75,32 +65,19 @@
   }
   .nav-links a:hover { color: var(--text); background: rgba(255,255,255,0.08); }
   .nav-links a.nav-cta {
-    color: #fff; background: linear-gradient(160deg, var(--accent), var(--accent-dark));
-    box-shadow: 0 4px 16px rgba(79,124,255,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+    color: #fff; background: var(--accent);
+    box-shadow: 0 3px 0 var(--accent-dark);
   }
   .nav-links a.nav-cta:hover { filter: brightness(1.1); }
 
   /* ---- hero ---- */
   header { padding: 96px 24px 56px; text-align: center; }
-  .badge {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 7px 16px; border-radius: 999px; font-size: 13px; font-weight: 600; color: var(--muted);
-    background: rgba(255,255,255,0.06); border: 1px solid var(--stroke);
-    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    margin-bottom: 28px;
-  }
-  .badge .pulse { width: 8px; height: 8px; border-radius: 50%; background: #34d399; box-shadow: 0 0 12px #34d399; }
   h1 {
     font-size: clamp(38px, 6.4vw, 68px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.08;
-    background: linear-gradient(180deg, #ffffff 30%, #b9c6ef);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    color: #fff;
     margin-bottom: 8px;
   }
-  h1 .thock {
-    background: linear-gradient(120deg, #6aa9ff, var(--accent) 40%, var(--accent2));
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-    filter: drop-shadow(0 0 24px rgba(79,124,255,0.45));
-  }
+  h1 .thock { color: var(--accent); }
   .tagline { color: var(--muted); font-size: 19px; max-width: 600px; margin: 18px auto 36px; }
   .cta { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
   .btn {
@@ -112,23 +89,19 @@
   .btn:hover { transform: translateY(-2px); }
   .btn:active { transform: translateY(1px); }
   .btn-primary {
-    color: #fff; position: relative; overflow: hidden;
-    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
-    box-shadow: 0 10px 32px rgba(79,124,255,0.5), inset 0 1px 0 rgba(255,255,255,0.35), inset 0 -1px 0 rgba(0,0,0,0.2);
+    color: #fff;
+    background: var(--accent);
+    border: 2px solid var(--ink);
+    box-shadow: 0 5px 0 var(--accent-dark);
   }
-  .btn-primary::after { /* specular sweep */
-    content: ""; position: absolute; top: 0; left: -80%; width: 60%; height: 100%;
-    background: linear-gradient(100deg, transparent, rgba(255,255,255,0.35), transparent);
-    transform: skewX(-20deg); transition: left .5s ease;
-  }
-  .btn-primary:hover::after { left: 120%; }
+  .btn-primary:active { transform: translateY(3px); box-shadow: 0 2px 0 var(--accent-dark); }
   .btn-glass {
     color: var(--text);
-    background: var(--glass); border: 1px solid var(--stroke);
-    backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.15);
+    background: var(--card); border: 2px solid var(--stroke);
+    box-shadow: 0 5px 0 rgba(0, 2, 12, 0.45);
   }
-  .btn-glass:hover { border-color: var(--stroke-bright); background: var(--glass-strong); }
+  .btn-glass:hover { border-color: var(--stroke-bright); background: var(--card-2); }
+  .btn-glass:active { transform: translateY(3px); box-shadow: 0 2px 0 rgba(0, 2, 12, 0.45); }
 
   /* ---- mascot & squad ---- */
   .thocky-wrap { display: flex; justify-content: center; margin: 4px 0 20px; }
@@ -139,7 +112,7 @@
   .demo-mascot.pressed .cap-group { transform: translateY(5px); }
   .squad-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 18px; }
   .squad-card { border-radius: 22px; padding: 22px 18px 20px; text-align: center; cursor: pointer; transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease; }
-  .squad-card:hover { transform: translateY(-5px); border-color: var(--stroke-bright); box-shadow: 0 20px 60px rgba(2,4,18,0.6), 0 0 26px rgba(79,124,255,0.12); }
+  .squad-card:hover { transform: translateY(-5px); border-color: var(--stroke-bright); box-shadow: 0 11px 0 rgba(0, 2, 12, 0.45); }
   .squad-card svg { width: 104px; height: 104px; }
   .squad-card h3 { font-size: 17px; margin: 8px 0 2px; }
   .squad-card p { color: var(--muted); font-size: 13.5px; }
@@ -147,26 +120,21 @@
 
   /* ---- demo ---- */
   .demo { border-radius: 28px; padding: 30px; margin: 8px 0 90px; position: relative; }
-  .demo::before { /* top rim light */
-    content: ""; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
-  }
   .demo-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; margin-bottom: 20px; }
   .demo-head h2 { font-size: 21px; letter-spacing: -0.01em; }
   .pills { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 22px; }
   .pill {
-    border: 1px solid var(--stroke); cursor: pointer; padding: 8px 15px; border-radius: 999px;
-    background: rgba(255,255,255,0.05); color: var(--muted); font-size: 13px; font-weight: 600;
+    border: 1.5px solid var(--stroke); cursor: pointer; padding: 8px 15px; border-radius: 999px;
+    background: var(--card-2); color: var(--muted); font-size: 13px; font-weight: 600;
     display: inline-flex; align-items: center; gap: 7px;
-    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     transition: all .15s ease;
   }
-  .pill .dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 8px currentColor; }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; }
   .pill:hover { color: var(--text); border-color: var(--stroke-bright); transform: translateY(-1px); }
   .pill.active {
-    background: linear-gradient(160deg, var(--accent), var(--accent-dark));
-    color: #fff; border-color: transparent;
-    box-shadow: 0 6px 20px rgba(79,124,255,0.45), inset 0 1px 0 rgba(255,255,255,0.3);
+    background: var(--accent);
+    color: #fff; border-color: var(--accent-dark);
+    box-shadow: 0 3px 0 var(--accent-dark);
   }
   .vol { display: flex; align-items: center; gap: 10px; color: var(--muted); font-size: 15px; }
   input[type=range] {
@@ -182,15 +150,14 @@
 
   /* ---- keyboard ---- */
   .kb-outer {
-    background: rgba(5,7,16,0.55); border: 1px solid var(--stroke);
+    background: #0a0d18; border: 2px solid var(--stroke);
     border-radius: 20px; padding: 18px; outline: none; cursor: pointer;
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
     box-shadow: inset 0 2px 12px rgba(0,0,0,0.5);
     transition: border-color .2s ease, box-shadow .2s ease;
   }
   .kb-outer:focus {
-    border-color: rgba(79,124,255,0.7); cursor: default;
-    box-shadow: inset 0 2px 12px rgba(0,0,0,0.5), 0 0 0 4px rgba(79,124,255,0.18), 0 0 40px rgba(79,124,255,0.25);
+    border-color: var(--accent); cursor: default;
+    box-shadow: inset 0 2px 12px rgba(0,0,0,0.5), 0 0 0 4px rgba(79,124,255,0.22);
   }
   .kb-outer:not(:focus):hover { border-color: var(--stroke-bright); }
   .kb { display: flex; flex-direction: column; gap: 6px; user-select: none; }
@@ -227,13 +194,12 @@
   .card:hover {
     transform: translateY(-5px);
     border-color: var(--stroke-bright);
-    box-shadow: 0 24px 70px rgba(2,4,18,0.6), 0 0 30px rgba(79,124,255,0.12), inset 0 1px 0 rgba(255,255,255,0.2);
+    box-shadow: 0 11px 0 rgba(0, 2, 12, 0.45);
   }
   .card .chip {
     width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; font-size: 22px;
-    background: linear-gradient(160deg, rgba(79,124,255,0.35), rgba(139,92,246,0.2));
-    border: 1px solid rgba(120,150,255,0.35);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.25), 0 6px 18px rgba(79,124,255,0.2);
+    background: rgba(79, 124, 255, 0.16);
+    border: 2px solid var(--stroke-bright);
     margin-bottom: 14px;
   }
   .card h3 { font-size: 17px; margin-bottom: 6px; letter-spacing: -0.01em; }
@@ -245,7 +211,7 @@
     font-family: ui-monospace, "SF Mono", Menlo, monospace;
     font-size: 13.5px; line-height: 1.75; color: var(--muted); white-space: pre;
   }
-  .pipe pre b { color: var(--accent); font-weight: 600; text-shadow: 0 0 16px rgba(79,124,255,0.5); }
+  .pipe pre b { color: var(--accent); font-weight: 600; }
 
   footer { border-top: 1px solid rgba(255,255,255,0.08); padding: 40px 0 64px; color: var(--muted); font-size: 14px; text-align: center; }
   footer a { color: var(--text); }
@@ -268,8 +234,6 @@
 </head>
 <body>
 
-<div class="aurora" aria-hidden="true"></div>
-
 <nav class="glass">
   <a class="nav-logo" href="#"><span class="cap"><svg viewBox="0 0 30 30" width="19" height="19" aria-hidden="true"><circle cx="10" cy="13" r="4.2" fill="#fff"/><circle cx="20" cy="13" r="4.2" fill="#fff"/><circle cx="10.8" cy="14" r="2" fill="#0b1030"/><circle cx="20.8" cy="14" r="2" fill="#0b1030"/><path d="M11 21.5 Q15 25 19 21.5" stroke="#0b1030" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg></span>Macanikal</a>
   <div class="nav-links">
@@ -281,7 +245,6 @@
 </nav>
 
 <header>
-  <div class="badge"><span class="pulse"></span> Free &amp; open source · macOS 14+</div>
   <div class="thocky-wrap" aria-hidden="true">
     <svg class="thocky" viewBox="0 0 230 175">
       <path d="M60 38 L52 22" stroke="#ffd166" stroke-width="4" stroke-linecap="round" fill="none"/>
@@ -452,7 +415,7 @@ hardware IO buffer forced to <b>128 frames (~2.7 ms @ 48 kHz)</b>
 
 <footer>
   <div class="wrap">
-    <p><a href="https://github.com/techieasif/macanikal">Macanikal</a> is open source under the MIT license.
+    <p><a href="https://github.com/techieasif/macanikal">Macanikal</a> is free and open source under the MIT license · requires macOS 14 or later.
     Switch recordings from <a href="https://github.com/tplai/kbsim">kbsim</a> by Thomas Lai (MIT).</p>
   </div>
 </footer>
