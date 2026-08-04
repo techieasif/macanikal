@@ -25,11 +25,14 @@ targets:
         CURRENT_PROJECT_VERSION: 1
         SWIFT_VERSION: "5.0"
         ENABLE_HARDENED_RUNTIME: YES
-        GENERATE_INFOPLIST_FILE: YES
-        INFOPLIST_KEY_LSUIElement: YES
-        INFOPLIST_KEY_NSHumanReadableCopyright: ""
-        INFOPLIST_KEY_CFBundleDisplayName: Macanikal
         COMBINE_HIDPI_IMAGES: YES
+    info:
+      path: macanikal/Info.plist
+      properties:
+        LSUIElement: true
+        CFBundleIconFile: AppIcon
+        CFBundleDisplayName: Macanikal
+        NSHumanReadableCopyright: ""
   macanikalTests:
     type: bundle.unit-test
     platform: macOS
